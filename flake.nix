@@ -3,8 +3,9 @@
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs.rust-overlay.url = "github:oxalica/rust-overlay";
 
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, rust-overlay }:
     flake-utils.lib.eachSystem flake-utils.lib.allSystems (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
@@ -52,18 +53,56 @@
           ];
 
           doCheck = false;
-          # FONTCONFIG_FILE = fonts;
         };
 
         nodeDependencies =
           (pkgs.callPackage ./default.nix { }).nodeDependencies;
 
-        plugin = pkgs.stdenv.mkDerivation {
-          pname = "slint-vscode";
+        wasmPkgs = import nixpkgs {
+          inherit system;
+          overlays = [ (import rust-overlay) ];
+        };
+
+        wasmRustPlatform = wasmPkgs.rust-bin.stable.latest.default.override {
+          targets = [ "wasm32-unknown-unknown" ];
+        };
+
+        /* plugin_old = pkgs.stdenv.mkDerivation {
+             pname = "slint-vscode";
+             inherit version src;
+             nativeBuildInputs = [ wasmRustPlatform ];
+             buildInputs = with pkgs; [ nodejs wasm-pack ];
+             buildPhase = ''
+               ln -s ${nodeDependencies}/lib/node_modules ./editors/vscode/node_modules
+               export PATH="${nodeDependencies}/bin:$PATH"
+
+               mkdir -p target/debug
+               cp ${lsp}/bin/slint-lsp target/debug/slint-lsp
+               npm -C editors/vscode run local-package
+             '';
+             installPhase = ''
+               mkdir -p $out
+               cp editors/vscode/*.vsix $out
+             '';
+           };
+        */
+
+        plugin = rustPlatform.buildRustPackage {
           inherit version src;
-          buildInputs = [ pkgs.nodejs ];
+          pname = "slint-lsp";
+
+          cargoLock = {
+            lockFile = "${src}/Cargo.lock";
+            outputHashes = {
+              "ft5336-0.1.0" =
+                "sha256-XLRhbkVnZrPGeO86nA4rUttKRfu/zWzjL7hDG53Lraw=";
+            };
+          };
+          nativeBuildInputs = with pkgs; [ nodejs wasm-pack wasmRustPlatform ];
+          buildInputs = with pkgs; [ ];
           buildPhase = ''
-            ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+            set -x
+            ln -s ${nodeDependencies}/lib/node_modules ./editors/vscode/node_modules
             export PATH="${nodeDependencies}/bin:$PATH"
 
             mkdir -p target/debug
@@ -74,6 +113,8 @@
             mkdir -p $out
             cp editors/vscode/*.vsix $out
           '';
+
+          doCheck = false;
         };
 
       in { packages = { inherit lsp plugin; }; });
