@@ -10,16 +10,20 @@
         pkgs = nixpkgs.legacyPackages.${system};
         rustPlatform = pkgs.rustPlatform;
 
-        lsp = rustPlatform.buildRustPackage rec {
-          pname = "vscode-slint";
-          version = "1.0.0";
+        # fonts = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
 
-          src = pkgs.fetchFromGitHub {
-            owner = "slint-ui";
-            repo = "slint";
-            rev = "v${version}";
-            hash = "sha256-AldOigd8WtCxGP4nuI7NQb/c5X/a8o+OiRGC+CBepOM=";
-          };
+        version = "1.0.0";
+
+        src = pkgs.fetchFromGitHub {
+          owner = "slint-ui";
+          repo = "slint";
+          rev = "v${version}";
+          hash = "sha256-AldOigd8WtCxGP4nuI7NQb/c5X/a8o+OiRGC+CBepOM=";
+        };
+
+        lsp = rustPlatform.buildRustPackage rec {
+          inherit version src;
+          pname = "slint-lsp";
 
           cargoLock = {
             lockFile = "${src}/Cargo.lock";
@@ -46,8 +50,31 @@
             wayland
             qt6.qtbase.dev
           ];
-          buildNoDefaultFeatures = true;
+
+          doCheck = false;
+          # FONTCONFIG_FILE = fonts;
         };
 
-      in { packages = { inherit lsp; }; });
+        nodeDependencies =
+          (pkgs.callPackage ./default.nix { }).nodeDependencies;
+
+        plugin = pkgs.stdenv.mkDerivation {
+          pname = "slint-vscode";
+          inherit version src;
+          buildInputs = [ pkgs.nodejs ];
+          buildPhase = ''
+            ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+            export PATH="${nodeDependencies}/bin:$PATH"
+
+            mkdir -p target/debug
+            cp ${lsp}/bin/slint-lsp target/debug/slint-lsp
+            npm -C editors/vscode run local-package
+          '';
+          installPhase = ''
+            mkdir -p $out
+            cp editors/vscode/*.vsix $out
+          '';
+        };
+
+      in { packages = { inherit lsp plugin; }; });
 }
