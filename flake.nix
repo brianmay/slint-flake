@@ -98,15 +98,28 @@
                 "sha256-XLRhbkVnZrPGeO86nA4rUttKRfu/zWzjL7hDG53Lraw=";
             };
           };
-          nativeBuildInputs = with pkgs; [ nodejs wasm-pack wasmRustPlatform ];
+          nativeBuildInputs = with pkgs; [
+            nodejs
+            wasm-pack
+            wasm-bindgen-cli
+            binaryen
+            wasmRustPlatform
+          ];
           buildInputs = with pkgs; [ ];
           buildPhase = ''
             set -x
+            export HOME=/tmp
+            # cargo build --bin slint-lsp --release --target=wasm32-unknown-unknown
+
             ln -s ${nodeDependencies}/lib/node_modules ./editors/vscode/node_modules
             export PATH="${nodeDependencies}/bin:$PATH"
 
             mkdir -p target/debug
             cp ${lsp}/bin/slint-lsp target/debug/slint-lsp
+            cd editors/vscode
+            wasm-pack build --target web --out-name index ../../tools/lsp --no-default-features --features preview-lense,preview-api 
+            wasm-pack build --release --target web --out-dir $PWD/out ../../api/wasm-interpreter --features highlight
+            npm run compile
             npm -C editors/vscode run local-package
           '';
           installPhase = ''
