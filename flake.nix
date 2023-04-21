@@ -13,13 +13,13 @@
 
         # fonts = pkgs.makeFontsConf { fontDirectories = [ pkgs.dejavu_fonts ]; };
 
-        version = "1.0.0";
+        version = "1.0.1";
 
         src = pkgs.fetchFromGitHub {
           owner = "slint-ui";
           repo = "slint";
           rev = "v${version}";
-          hash = "sha256-AldOigd8WtCxGP4nuI7NQb/c5X/a8o+OiRGC+CBepOM=";
+          hash = "sha256-476wJlAVR9kCJvCMJfnrHn7SCT2k/4KAz1GcANyIy+I=";
         };
 
         lsp = rustPlatform.buildRustPackage rec {
