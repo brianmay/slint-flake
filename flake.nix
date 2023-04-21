@@ -116,10 +116,10 @@
 
             mkdir -p target/debug
             cp ${lsp}/bin/slint-lsp target/debug/slint-lsp
-            cd editors/vscode
-            wasm-pack build --target web --out-name index ../../tools/lsp --no-default-features --features preview-lense,preview-api 
-            wasm-pack build --release --target web --out-dir $PWD/out ../../api/wasm-interpreter --features highlight
-            npm run compile
+            # cd editors/vscode
+            # wasm-pack build --target web --out-name index ../../tools/lsp --no-default-features --features preview-lense,preview-api 
+            # wasm-pack build --release --target web --out-dir $PWD/out ../../api/wasm-interpreter --features highlight
+            # npm run compile
             npm -C editors/vscode run local-package
           '';
           installPhase = ''
