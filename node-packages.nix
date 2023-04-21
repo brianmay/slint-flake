@@ -1228,15 +1228,6 @@ let
         sha512 = "V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==";
       };
     };
-    "env-var-7.3.0" = {
-      name = "env-var";
-      packageName = "env-var";
-      version = "7.3.0";
-      src = fetchurl {
-        url = "https://registry.npmjs.org/env-var/-/env-var-7.3.0.tgz";
-        sha512 = "qwtwYJ9d3XFxXRDudPEAMszaggpDgcfb1ZGYb9/cNyMugN2/a8EtviopnRL6c+petj2vp6/gxwYd9ExL1/iPcw==";
-      };
-    };
     "envinfo-7.8.1" = {
       name = "envinfo";
       packageName = "envinfo";
@@ -3922,7 +3913,6 @@ let
       sources."end-of-stream-1.4.4"
       sources."enhanced-resolve-5.12.0"
       sources."entities-4.5.0"
-      sources."env-var-7.3.0"
       sources."envinfo-7.8.1"
       sources."es-module-lexer-0.9.3"
       sources."esbuild-0.14.54"
