@@ -111,6 +111,14 @@
             export HOME=/tmp
             # cargo build --bin slint-lsp --release --target=wasm32-unknown-unknown
 
+            mkdir bin
+            echo << EOF > bin/env-var
+            #!${pkgs.bash}
+            "$*"
+            EOF
+            chmod +x bin/env-var
+            export PATH="$PWD/bin:$PATH"
+
             ln -s ${nodeDependencies}/lib/node_modules ./editors/vscode/node_modules
             export PATH="${nodeDependencies}/bin:$PATH"
 
