@@ -114,16 +114,21 @@
             ln -s ${nodeDependencies}/lib/node_modules ./editors/vscode/node_modules
             export PATH="${nodeDependencies}/bin:$PATH"
 
+            echo '[package.metadata.wasm-pack.profile.release]' >> tools/lsp/Cargo.toml
+            echo 'wasm-opt = false' >> tools/lsp/Cargo.toml
+            echo '[package.metadata.wasm-pack.profile.release]' >> ./api/wasm-interpreter/Cargo.toml
+            echo 'wasm-opt = false' >> ./api/wasm-interpreter/Cargo.toml
+
             mkdir -p target/debug
             cp ${lsp}/bin/slint-lsp target/debug/slint-lsp
-            # cd editors/vscode
             # wasm-pack build --target web --out-name index ../../tools/lsp --no-default-features --features preview-lense,preview-api 
             # wasm-pack build --release --target web --out-dir $PWD/out ../../api/wasm-interpreter --features highlight
-            # npm run compile
+            cp LICENSE.md ./editors/vscode
             npm -C editors/vscode run local-package
           '';
           installPhase = ''
             mkdir -p $out
+            ls -l editors/vscode
             cp editors/vscode/*.vsix $out
           '';
 
