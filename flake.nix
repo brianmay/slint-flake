@@ -56,26 +56,6 @@
           targets = [ "wasm32-unknown-unknown" ];
         };
 
-        /* plugin_old = pkgs.stdenv.mkDerivation {
-             pname = "slint-vscode";
-             inherit version src;
-             nativeBuildInputs = [ wasmRustPlatform ];
-             buildInputs = with pkgs; [ nodejs wasm-pack ];
-             buildPhase = ''
-               ln -s ${nodeDependencies}/lib/node_modules ./editors/vscode/node_modules
-               export PATH="${nodeDependencies}/bin:$PATH"
-
-               mkdir -p target/debug
-               cp ${lsp}/bin/slint-lsp target/debug/slint-lsp
-               npm -C editors/vscode run local-package
-             '';
-             installPhase = ''
-               mkdir -p $out
-               cp editors/vscode/*.vsix $out
-             '';
-           };
-        */
-
         plugin = rustPlatform.buildRustPackage {
           inherit version src;
           pname = "slint-lsp";
