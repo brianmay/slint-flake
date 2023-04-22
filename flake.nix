@@ -39,18 +39,7 @@
             fontconfig
             qt6.wrapQtAppsHook
           ];
-          buildInputs = with pkgs; [
-            fontconfig
-            libGL
-            xorg.libxcb
-            xorg.libX11
-            xorg.libXcursor
-            xorg.libXrandr
-            xorg.libXi
-            libxkbcommon
-            wayland
-            qt6.qtbase.dev
-          ];
+          buildInputs = with pkgs; [ fontconfig qt6.qtbase.dev ];
 
           doCheck = false;
         };
